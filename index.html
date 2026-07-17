@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showreel Clip Player</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        video {
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain;
+            background: #000;
+            display: block;
+        }
+
+        #overlay {
+            position: absolute;
+            bottom: 40px;
+            left: 20px;
+            width: auto;
+            text-align: left;
+            color: #fff;
+            font-size: 30px;
+            font-weight: bold;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
+            pointer-events: none;
+            z-index: 10;
+            padding: 10px 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.5));
+        }
+    </style>
+</head>
+<body>
+
+    <video id="clipplayer" playsinline webkit-playsinline preload="metadata"></video>
+    <div id="overlay">Loading clip...</div>
+
+    <script>
+        (async function () {
+            const params = new URLSearchParams(window.location.search);
+            const clipId = params.get('clipId');
+            const creator = params.get('creator') || 'Unknown';
+            const platform = params.get('platform') || 'obs';
+
+            const overlay = document.getElementById('overlay');
+
+            if (!clipId) {
+                overlay.textContent = 'Error: Missing clip ID';
+                return;
+            }
+
+            overlay.textContent = 'Clipped by ' + creator;
+
+            const endpoint = 'https://gql.twitch.tv/gql';
+            const clientId = 'kimne78kx3ncx6brgo4mv6wki5h1ko';
+
+            const query = {
+                operationName: 'VideoAccessToken_Clip',
+                variables: { slug: clipId },
+                query: `
+                    query VideoAccessToken_Clip($slug: ID!) {
+                        clip(slug: $slug) {
+                            playbackAccessToken(params: {platform: "web", playerType: "clips-embed-rechat"}) {
+                                signature
+                                value
+                            }
+                            videoQualities {
+                                frameRate
+                                quality
+                                sourceURL
+                            }
+                        }
+                    }
+                `
+            };
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=UTF-8',
+                        'Client-ID': clientId
+                    },
+                    body: JSON.stringify(query)
+                });
+
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+
+                const result = await response.json();
+                const clipData = result?.data?.clip;
+
+                if (!clipData) {
+                    throw new Error('Clip data not found');
+                }
+
+                const qualities = clipData.videoQualities;
+                if (!qualities || qualities.length === 0) {
+                    throw new Error('No video qualities available');
+                }
+
+                let selectedQuality;
+                const platformLower = platform.toLowerCase();
+
+                if (platformLower === 'obs') {
+                    selectedQuality = qualities[0];
+                } else if (platformLower === 'meld' || platformLower === 'slobs' || !platform) {
+                    selectedQuality = qualities.find(q => q.quality === '720') ||
+                        qualities.find(q => q.quality === '480') ||
+                        qualities.find(q => q.quality === '360') ||
+                        qualities[0];
+                } else {
+                    selectedQuality = qualities.find(q => q.quality === '720') || qualities[0];
+                }
+
+                const sourceUrl = selectedQuality.sourceURL;
+                const sig = clipData.playbackAccessToken.signature;
+                const token = clipData.playbackAccessToken.value;
+
+                const fullVideoUrl = sourceUrl + '?sig=' + sig + '&token=' + encodeURIComponent(token);
+
+                const video = document.getElementById('clipplayer');
+                video.src = fullVideoUrl;
+                video.preload = 'metadata';
+                video.load();
+
+                video.addEventListener('canplaythrough', () => {
+                    video.muted = false;
+                    video.play().catch(() => {
+                        video.muted = false;
+                        video.play();
+                    });
+                }, { once: true });
+
+                video.addEventListener('stalled', () => {
+                    if (!video.paused) {
+                        video.play().catch(() => {});
+                    }
+                });
+
+            } catch (err) {
+                overlay.textContent = 'Error loading clip';
+                console.error('Showreel widget error:', err);
+            }
+        })();
+    </script>
+
+</body>
+</html>
