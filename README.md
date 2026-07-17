@@ -39,8 +39,7 @@ Play all Twitch clips created during your current stream with a single chat comm
 ### 1. Import Actions into Streamer.bot
 
 1. Open Streamer.bot → **"Actions"** tab.
-2. Click **"Import"** and select the `Showreel - Stream Start Tracker.sb` file.
-3. Repeat for `Showreel - Play Clips.sb` and `Showreel - Commands.sb`.
+2. Click **"Import"** and select the `Showreel - Stream Start Tracker.sb` file (drag and drop)
 
 ---
 
