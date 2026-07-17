@@ -101,11 +101,17 @@ string sourceName = "Clip Player";
 4. Type `!showreel` in chat.
 5. All clips from your current stream will play with the overlay.
 
+## Autoplay
+
+The Showreel system is designed to start automatically when you switch to the scene where you placed the browser source. 
+This is handled by the Scene Changed trigger on the `Showreel - Play Clips` action. When you transition to the scene you specified in the code (e.g., "End Credits"), the showreel begins playing immediately – no chat command needed. This makes it easy to configure as a scene switcher hotkey if you are using a Streamdeck or similar device.
+
+You can also trigger the showreel manually at any time by typing !showreel in chat. Both methods work side‑by‑side. If you prefer to disable the automatic behavior, simply open the `Showreel - Play Clips` action in Streamer.bot, go to the Triggers tab, and remove the Scene Changed trigger. After that, the showreel will only start when you type the command.
+
 ---
 
 ## Customization
 
-- **Overlay text position / size** – edit the `#overlay` CSS inside the hosted `index.html`.
 - **Limit clip count** – in `Showreel - Play Clips`, add `.Take(20)` after the `Where` clause.
 - **Change the command** – in `Showreel - Commands`, change the trigger from `!showreel` to whatever you like.
 
@@ -115,6 +121,7 @@ string sourceName = "Clip Player";
 
 The system uses a pre-hosted widget at:  
 **https://twitch-clip-showreel.netlify.app/**
+I created this widget myself so you don't have to worry about hosting it anywhere unless you want to.
 
 This widget is generic – it works for **any Twitch clip** from **any channel**. You don't need to host it yourself. If you prefer to host your own copy, you can replace the `baseUrl` in the `Showreel - Play Clips` code with your own URL.
 
