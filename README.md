@@ -63,8 +63,8 @@ string sourceName = "Showreel Player";
 string sceneName = "End Screen";
 string sourceName = "Clip Player";
 
-5. Click **"Compile"** (the hammer icon). You should see **0 errors**.
-6. Click **"OK"** to save.
+5. Click **"Compile"**. You should see **0 errors**.
+6. Click **"Save and complie"** to save.
 
 ---
 
@@ -78,7 +78,7 @@ string sourceName = "Clip Player";
   - **Shutdown when not visible**: **OFF**
   - **Refresh browser when scene becomes active**: **ON**
   - Width: 1920, Height: 1080
-
+- You don't have to create a scene for this, you can also just copy the browser source and have it in your "Ending Stream" scene, or wherever you choose.
 ---
 
 ### 4. Set Triggers
@@ -144,3 +144,6 @@ Free to use, modify, and share. If you improve it, consider sharing back!
 ---
 
 **Enjoy your showreel!**
+
+Love,
+twitch.tv/Doublescuffed
